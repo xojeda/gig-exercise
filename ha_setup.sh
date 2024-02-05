@@ -40,7 +40,7 @@ vrrp_instance VI_1 {
 #Configure a custom check script, this script will check if the mysql instance is accepting connections through port 5566.
 #To do so we will need to add some extra components.
 #Create new check user in our instance that can login from the node 02 address and only with connect permission.
-CREATE USER 'ha_check'@'localhost' IDENTIFIED BY 'Temporal';
+CREATE USER 'ha_check'@'localhost' IDENTIFIED BY 'PASS';
 GRANT USAGE ON *.* TO 'ha_check'@'localhost';
 FLUSH PRIVILEGES;
 
@@ -50,7 +50,7 @@ FLUSH PRIVILEGES;
 sudo nano /etc/keepalived/chk_node01.sh
 ################ CODE ####################
 #!/bin/bash
-timeout 5 mysql --user=ha_check --port=5566 --password=Temporal --execute="SELECT 1;" 2>/dev/null
+timeout 5 mysql --user=ha_check --port=5566 --password=PASS --execute="SELECT 1;" 2>/dev/null
 
 if [ $? -eq 0 ]; then
     exit 0
@@ -100,7 +100,7 @@ echo "ssl-cert = /mnt/data/node01/data/server-cert.pem" | sudo tee -a /etc/mysql
 echo "ssl-key = /mnt/data/node01/data/server-key.pem" | sudo tee -a /etc/mysql/mysql.conf.d/mysqld.cnf
 
 #Create a user for the replication.
-CREATE USER 'replication_user'@'192.168.56.11' IDENTIFIED BY 'Temporal';
+CREATE USER 'replication_user'@'192.168.56.11' IDENTIFIED BY 'PASS';
 GRANT REPLICATION SLAVE, RELOAD, REPLICATION CLIENT ON *.* TO 'replication_user'@'192.168.56.11';
 FLUSH PRIVILEGES;
 #Restart mysql server.
@@ -115,7 +115,7 @@ echo "relay-log = /var/log/mysql/mysql-relay-bin.log" | sudo tee -a /etc/mysql/m
 echo "binlog-do-db = MusicStore" | sudo tee -a /etc/mysql/mysql.conf.d/mysqld.cnf
 
 #Create a user for the replication.
-CREATE USER 'replication_user'@'192.168.56.10' IDENTIFIED BY 'Temporal';
+CREATE USER 'replication_user'@'192.168.56.10' IDENTIFIED BY 'PASS';
 GRANT REPLICATION SLAVE, RELOAD, SUPER ON *.* TO 'replication_user'@'192.168.56.10';
 FLUSH PRIVILEGES;
 
@@ -127,7 +127,7 @@ CHANGE MASTER TO
   MASTER_HOST='192.168.56.10',
   MASTER_PORT=5566,
   MASTER_USER='replication_user',
-  MASTER_PASSWORD='Temporal',
+  MASTER_PASSWORD='PASS',
   MASTER_LOG_FILE='mysql-bin.000002',
   MASTER_LOG_POS=157,
   GET_MASTER_PUBLIC_KEY=1;
